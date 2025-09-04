@@ -4,23 +4,24 @@ from PIL import Image, ImageTk
 from src.hlogic import HangmanLogic
 
 class HangmanGUI:
-    def __init__(self, master, word_list):
+    def __init__(self, master):
         self.master = master
-        self.word_list = word_list
         self.level_var = tk.StringVar(value="basic")
-
-        # Set up the main window.
+        self.level_var.trace_add("write", self.level_selected)
         self.master.title("Hangman")
         self.master.geometry("600x500")
         self.master.resizable(False, False)
         self.master.configure(bg="#f8f9fa")
         self.master.option_add("*Font", "Arial 10")
 
-        # Bind keyboard input.
         self.master.bind("<Key>", self.handle_keypress)
 
-        # Create level selection screen.
         self.create_level_selection()
+
+        
+    def level_selected(self, *args):
+        # This function is called every time the dropdown value changes
+        print(f"Level selected: {self.level_var.get()}")
 
     def create_level_selection(self):
         title_label = tk.Label(
@@ -43,14 +44,7 @@ class HangmanGUI:
 
         levels = ["basic", "intermediate"]
         self.level_menu = tk.OptionMenu(self.master, self.level_var, *levels)
-        self.level_menu.config(
-            font=("Arial", 12),
-            bg="#ffffff",
-            fg="black",
-            relief="raised",
-            borderwidth=2,
-            width=12
-        )
+        self.level_menu.config(font=("Arial", 12), bg="#ffffff", fg="black", relief="raised", borderwidth=2, width=12)
         self.level_menu.pack(pady=10)
 
         self.start_button = tk.Button(
@@ -79,22 +73,21 @@ class HangmanGUI:
 
     def start_game(self):
         self.level = self.level_var.get()
+        print(f"\n--- Starting {self.level.capitalize()} Level ---")
 
-        # Hide level selection widgets.
         for widget in self.master.winfo_children():
             widget.destroy()
 
-        # Initialize game logic.
-        self.game = HangmanLogic(self.word_list, self.level)
+        self.game = HangmanLogic(level=self.level)
+        print(f"Selected word/phrase: {self.game.hidden_word}")  
 
-        # Load images for hangman states (optional).
+        # Load hangman images
         self.image_path = [f"images/hangman{i}.png" for i in range(6, -1, -1)]
         try:
             self.images = [ImageTk.PhotoImage(Image.open(p).resize((200, 200))) for p in self.image_path]
         except Exception:
-            self.images = [None] * 7  # Fallback if images are missing.
+            self.images = [None] * 7
 
-        # Create in-game widgets.
         self.create_widgets()
         self.update_display()
         self.start_timer()
@@ -139,7 +132,7 @@ class HangmanGUI:
         )
         self.score_status.place(x=450, y=5)
 
-        # Hangman image panel.
+        # Hangman image panel
         self.panel = tk.Label(self.master, bg="#f8f9fa")
         self.panel.place(x=50, y=60)
 
@@ -151,6 +144,7 @@ class HangmanGUI:
         )
         self.word_display.place(x=270, y=160)
 
+        # Alphabet buttons
         self.buttons = {}
         letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         for i, letter in enumerate(letters):
@@ -197,7 +191,15 @@ class HangmanGUI:
 
         result = self.game.guess(letter)
         self.update_display()
-        self.time_left = 15  # Reset timer after a guess.
+        self.time_left = 15  # Reset timer after guess
+
+        print(f"Guessed letter: {letter}")
+        print(f"Current word: {' '.join(self.game.guess_word)}")
+        print(f"Tries left: {self.game.tries}")
+        print(f"Score: {self.game.score}")
+        print(f"Game over: {self.game.game_over}")
+        print("------------------------")
+
         return result
 
     def start_timer(self):
@@ -206,6 +208,10 @@ class HangmanGUI:
 
     def update_timer(self):
         self.timer_label.config(text=f"Time left: {self.time_left}s")
+
+        # --- Terminal logging ---
+        print(f"Timer: {self.time_left}s remaining")
+
         if self.time_left > 0 and not self.game.game_over:
             self.time_left -= 1
             self.master.after(1000, self.update_timer)
@@ -213,6 +219,7 @@ class HangmanGUI:
             self.game.tries -= 1
             self.lives.config(text=f"Tries left: {self.game.tries}")
             self.update_display()
+            print("Time expired! Deducted a try.")
             if self.game.tries == 0:
                 self.check_game_over("Time's up! No tries left!")
             else:
@@ -232,6 +239,12 @@ class HangmanGUI:
         for btn in self.buttons.values():
             btn.config(state="disabled")
 
+        print("====== Game Over ======")
+        print(msg)
+        print(f"The word was: {self.game.hidden_word}")
+        print(f"Final Score: {self.game.score}")
+        print("=======================")
+
         messagebox.showinfo("Game Over", msg)
 
         if hasattr(self, 'new_game_btn'):
@@ -250,7 +263,7 @@ class HangmanGUI:
         self.new_game_btn.place(x=250, y=400)
 
     def new_game(self):
+        print("\n--- Starting New Game ---\n")
         for widget in self.master.winfo_children():
             widget.destroy()
-
         self.create_level_selection()

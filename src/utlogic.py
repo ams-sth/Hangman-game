@@ -4,9 +4,9 @@ from src.hlogic import HangmanLogic
 class TestHangmanLogic(unittest.TestCase):
 
     def setUp(self):
-        self.word_list = ["APPLE", "BANANA", "ORANGE"]
-        self.game_basic = HangmanLogic(self.word_list, level="basic")
-        self.game_intermediate = HangmanLogic(self.word_list, level="intermediate")
+        self.dictionary_path = "src/dictionary.txt"
+        self.game_basic = HangmanLogic(level="basic", dictionary_path=self.dictionary_path)
+        self.game_intermediate = HangmanLogic(level="intermediate", dictionary_path=self.dictionary_path)
 
     def test_initial_state(self):
         for game in [self.game_basic, self.game_intermediate]:
@@ -72,3 +72,4 @@ class TestHangmanLogic(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+   

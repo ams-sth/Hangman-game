@@ -3,25 +3,23 @@ import string
 import nltk
 from nltk.corpus import brown
 
-# Ensure NLTK resources are downloaded
 nltk.download('brown')
 
 class HangmanLogic:
-    def __init__(self, word_list, level="basic", dictionary_path="src\dictionary.txt"):
+    def __init__(self, level="basic", dictionary_path="src/dictionary.txt"):
+        # Load dictionary
         try:
             with open(dictionary_path, "r") as f:
-                self.dictionary = set(line.strip().upper() for line in f)
+                self.word_list = [line.strip().upper() for line in f if line.strip()]
         except FileNotFoundError:
-            raise FileNotFoundError("Dictionary file not found. Please provide a valid dictionary path.")
+            raise FileNotFoundError("Dictionary file not found. Provide a valid path.")
+
+        if not self.word_list:
+            raise ValueError("Dictionary file is empty.")
 
         self.level = level
 
-        # Filter word list to include only valid words
-        self.word_list = [w.upper() for w in word_list if w.upper() in self.dictionary]
-        if not self.word_list:
-            raise ValueError("Word list must contain valid words.")
-
-        # Generate random phrases dynamically for intermediate level
+        # For intermediate level, generate random phrases from Brown corpus
         if self.level == "intermediate":
             self.phrase_list = self.generate_random_phrases()
         else:
@@ -34,17 +32,17 @@ class HangmanLogic:
         phrases = []
         for sentence in brown.sents():
             phrase = " ".join(sentence).upper()
-            if 2 <= len(phrase.split()) <= 5:  # Limit phrase length
+            if 2 <= len(phrase.split()) <= 5:
                 phrases.append(phrase)
-            if len(phrases) >= 10:  # Limit number of phrases
+            if len(phrases) >= 10:
                 break
         return phrases
 
     def reset(self):
         if self.level == "basic":
-            self.hidden_word = random.choice(self.word_list).upper()
+            self.hidden_word = random.choice(self.word_list)
         else:
-            self.hidden_word = random.choice(self.phrase_list).upper()
+            self.hidden_word = random.choice(self.phrase_list)
 
         self.current_display_word = ["_" if c != " " else " " for c in self.hidden_word]
         self.tries = 6
