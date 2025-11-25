@@ -7,7 +7,6 @@ nltk.download('brown')
 
 class HangmanLogic:
     def __init__(self, level="basic", dictionary_path="src/dictionary.txt"):
-        # Load dictionary
         try:
             with open(dictionary_path, "r") as f:
                 self.word_list = [line.strip().upper() for line in f if line.strip()]
@@ -19,7 +18,6 @@ class HangmanLogic:
 
         self.level = level
 
-        # For intermediate level, generate random phrases from Brown corpus
         if self.level == "intermediate":
             self.phrase_list = self.generate_random_phrases()
         else:

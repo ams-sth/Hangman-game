@@ -19,9 +19,7 @@ class HangmanGUI:
         self.create_level_selection()
 
         
-    def level_selected(self, *args):
-        # This function is called every time the dropdown value changes
-        print(f"Level selected: {self.level_var.get()}")
+
 
     def create_level_selection(self):
         title_label = tk.Label(
@@ -73,13 +71,11 @@ class HangmanGUI:
 
     def start_game(self):
         self.level = self.level_var.get()
-        print(f"\n--- Starting {self.level.capitalize()} Level ---")
 
         for widget in self.master.winfo_children():
             widget.destroy()
 
         self.game = HangmanLogic(level=self.level)
-        print(f"Selected word/phrase: {self.game.hidden_word}")  
 
         # Load hangman images
         self.image_path = [f"images/hangman{i}.png" for i in range(6, -1, -1)]
@@ -193,12 +189,6 @@ class HangmanGUI:
         self.update_display()
         self.time_left = 15  # Reset timer after guess
 
-        print(f"Guessed letter: {letter}")
-        print(f"Current word: {' '.join(self.game.guess_word)}")
-        print(f"Tries left: {self.game.tries}")
-        print(f"Score: {self.game.score}")
-        print(f"Game over: {self.game.game_over}")
-        print("------------------------")
 
         return result
 
@@ -209,8 +199,7 @@ class HangmanGUI:
     def update_timer(self):
         self.timer_label.config(text=f"Time left: {self.time_left}s")
 
-        # --- Terminal logging ---
-        print(f"Timer: {self.time_left}s remaining")
+
 
         if self.time_left > 0 and not self.game.game_over:
             self.time_left -= 1
@@ -219,7 +208,6 @@ class HangmanGUI:
             self.game.tries -= 1
             self.lives.config(text=f"Tries left: {self.game.tries}")
             self.update_display()
-            print("Time expired! Deducted a try.")
             if self.game.tries == 0:
                 self.check_game_over("Time's up! No tries left!")
             else:
@@ -239,11 +227,7 @@ class HangmanGUI:
         for btn in self.buttons.values():
             btn.config(state="disabled")
 
-        print("====== Game Over ======")
-        print(msg)
-        print(f"The word was: {self.game.hidden_word}")
-        print(f"Final Score: {self.game.score}")
-        print("=======================")
+
 
         messagebox.showinfo("Game Over", msg)
 
@@ -263,7 +247,6 @@ class HangmanGUI:
         self.new_game_btn.place(x=250, y=400)
 
     def new_game(self):
-        print("\n--- Starting New Game ---\n")
         for widget in self.master.winfo_children():
             widget.destroy()
         self.create_level_selection()
